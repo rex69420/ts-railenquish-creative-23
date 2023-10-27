@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-gradient-to-bl from-grgray via-grgray/75 to-grgray/20 p-6 px-24 rounded-lg shadow-md max-w-md grid place-items-center">
+    <h1 class="text-3xl text-text font-bold">PNR</h1>
+    <form id="pnrData" method="POST">
+        <div class="mt-4">
+            <label class="block text-gray-300" for="from_station">Enter 10 digit PNR</label>
+            <input class="bg-gray-400/5 text-text border border-white/30 rounded-md py-2 px-3" type="text" name="pnr" id="pnr">
+        </div>
+        <button class="bg-primary/0 border border-white/75 text-text/75 rounded-md px-4 py-2 mt-4 transition-all duration-300 hover:text-text/100 hover:border-primary text-center hover:bg-primary" type="submit">Submit</button>
+    </form>
+</div>
+
+<div id="pnrInfo" style="display: none;">
+    <table class="border-collapse w-full rounded-md">
+        <thead>
+            <tr class="bg-primary text-background">
+                <th class="border border-primary text-center py-2 px-4">Chart Status</th>
+                <th class="border border-primary text-center py-2 px-4">Train Name</th>
+                <th class="border border-primary text-center py-2 px-4">Source Station</th>
+                <th class="border border-primary text-center py-2 px-4">Destination Station</th>
+                <th class="border border-primary text-center py-2 px-4">Quota</th>
+                <th class="border border-primary text-center py-2 px-4">Class Name</th>
+                <th class="border border-primary text-center py-2 px-4">Date</th>
+            </tr>
+        </thead>
+        <tbody id="pnrInfoBody">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const form = document.getElementById("pnrData");
+    const pnrInfoDiv = document.getElementById("pnrInfo");
+    const pnrInfoBody = document.getElementById("pnrInfoBody");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const pnr = document.getElementById("pnr").value;
+        const url = `http://localhost:5000/get_pnr_info?pnr=${pnr}`;
+        console.log(url)
+
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                const pnrData = await response.json();
+                pnrInfoBody.innerHTML = ""; // Clear existing data
+                const pnr = pnrData; 
+
+                if (pnr.chartStatus === "Chart Not Prepared") {
+                    window.alert("Invalid or expired PNR. Chart Not Prepared.");
+                    pnrInfoDiv.style.display = "none"; // Hide the table
+                } else {
+                    const row = document.createElement("tr");
+                    row.classList.add("text-text");
+                    row.innerHTML = `
+                        <td class="border border-primary text-center py-2 px-4">${pnr.chartStatus}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.trainName}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.sourceStation}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.destinationStation}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.quota}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.className}</td>
+                        <td class="border border-primary text-center py-2 px-4">${pnr.dateOfJourney}</td>
+                    `;
+                    pnrInfoBody.appendChild(row);
+                    pnrInfoDiv.style.display = "block"; // Show the table
+                }
+            } else {
+                pnrInfoDiv.style.display = "none"; // Hide the table
+                window.alert("Failed to fetch data, make sure you have entered correct PNR.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+</script>
+{% endblock %}

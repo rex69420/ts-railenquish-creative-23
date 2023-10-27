@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-gradient-to-bl from-grgray via-grgray/75 to-grgray/20 p-6 px-24 rounded-lg shadow-md max-w-md grid place-items-center">
+    <h1 class="text-3xl text-text font-bold">Train Info</h1>
+    <form id="trainData" method="POST">
+        <div class="mt-4">
+            <label class="block text-gray-300" for="from_station">From:</label>
+            <input class="bg-gray-400/5 text-text border border-white/30 rounded-md py-2 px-3" type="text" name="from_station" id="from_station" required oninput="this.value = this.value.toUpperCase();">
+        </div>
+        <div class="mt-4">
+            <label class="block text-gray-300" for="to_station">To:</label>
+            <input class="bg-gray-400/5 text-text border border-white/30 rounded-md py-2 px-3" type="text" name="to_station" id="to_station" required oninput="this.value = this.value.toUpperCase();">
+        </div>
+        <div class="mt-4">
+            <label class="block text-gray-300" for="date">Date:</label>
+            <input class="bg-gray-400/5 text-text border border-white/30 rounded-md py-2 px-3" type="date" name="date" id="date" required>
+        </div>
+        <button class="bg-primary/0 border border-white/75 text-text/75 rounded-md px-4 py-2 mt-4 transition-all duration-300 hover:text-text/100 hover:border-primary text-center hover:bg-primary" type="submit">Submit</button>
+    </form>
+</div>
+
+<div id="trainInfo" style="display: none;">
+    <table class="border-collapse w-full rounded-md">
+        <thead>
+            <tr class="bg-primary text-background">
+                <th class="border border-primary text-center py-2 px-4">Train Name</th>
+                <th class="border border-primary text-center py-2 px-4">Source Station</th>
+                <th class="border border-primary text-center py-2 px-4">Destination Station</th>
+                <th class="border border-primary text-center py-2 px-4">From Station</th>
+                <th class="border border-primary text-center py-2 px-4">To Station</th>
+                <th class="border border-primary text-center py-2 px-4">Date</th>
+                <th class="border border-primary text-center py-2 px-4">Departure Time</th>
+                <th class="border border-primary text-center py-2 px-4">Arrival Time</th>
+                <th class="border border-primary text-center py-2 px-4">Travel Time</th>
+            </tr>
+        </thead>
+        <tbody id="trainInfoBody">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const form = document.getElementById("trainData");
+    const trainInfoDiv = document.getElementById("trainInfo");
+    const trainInfoBody = document.getElementById("trainInfoBody");
+
+    function convertToTitleCase(str) {
+        return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+    }
+    
+    function convertDecimalToTime(date) {
+        date = date.split(".");
+        return `${date[0]}hr ${date[1]}min`;
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const from = document.getElementById("from_station").value;
+        const to = document.getElementById("to_station").value;
+        const date = document.getElementById("date").value;
+
+        const url = `http://localhost:5000/get_train_info?from_station=${from}&to_station=${to}&date=${date}`;
+
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                const trainData = await response.json();
+                trainInfoBody.innerHTML = ""; // Clear existing data
+                for (const train of trainData.data) {
+                    const row = document.createElement("tr");
+                    row.classList.add("text-text");
+                    row.innerHTML = `
+                        <td class="border border-primary text-center py-2 px-4">${convertToTitleCase(train.train_base.train_name)}</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.source_stn_name} (${train.train_base.source_stn_code})</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.dstn_stn_name} (${train.train_base.dstn_stn_code})</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.from_stn_name} (${train.train_base.from_stn_code})</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.to_stn_name} (${train.train_base.to_stn_code})</td>
+                        <td class="border border-primary text-center py-2 px-4">${date}</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.from_time}</td>
+                        <td class="border border-primary text-center py-2 px-4">${train.train_base.to_time}</td>
+                        <td class="border border-primary text-center py-2 px-4">${convertDecimalToTime(train.train_base.travel_time)}</td>
+                    `;
+                    trainInfoBody.appendChild(row);
+                }
+                trainInfoDiv.style.display = "block"; // Show the table
+            } else {
+                trainInfoDiv.style.display = "none"; // Hide the table
+                window.alert("Failed to fetch data, make sure you have entered correct station codes.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+</script>
+{% endblock %}
