@@ -16,7 +16,7 @@ app = Flask(__name__, static_folder="static")
 app.config["SECRET_KEY"] = "teksyndi46"
 app.config[
     "MONGO_URI"
-] = "mongodb+srv://rex:5oS0U6qcACS873YZ@cluster0.p7aklfk.mongodb.net/flask_testing"
+] = "mongodb+srv://rex:5oS0U6qcACS873YZ@cluster0.p7aklfk.mongodb.net/railEnquish"
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 Session(app)

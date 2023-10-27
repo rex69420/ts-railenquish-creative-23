@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- <div class="bg-gradient-to-bl from-grgray via-grgray/75 to-grgray/20 p-6 rounded-lg shadow-md max-w-sm mx-auto mt-40"> -->
 <div class="bg-gradient-to-bl from-grgray via-grgray/75 to-grgray/20 p-6 px-24 rounded-lg shadow-md max-w-md grid place-items-center">
     <h1 class="text-3xl text-text font-bold">Login</h1>
     <form method="POST" action="{{ url_for('login') }}">
@@ -15,5 +14,7 @@
         </div>
         <button class="bg-primary/0 border border-white/75 text-text/75 rounded-md px-4 py-2 mt-4 transition-all duration-300 hover:text-text/100 hover:border-primary hover:bg-primary" type="submit">Login</button>
     </form>
+
+    <p class="text-gray-300 mt-4">Don't have an account? <a class="text-primary/0 hover:underline hover:text-primary" href="{{ url_for('register') }}">Register</a></p>
 </div>
 {% endblock %}
