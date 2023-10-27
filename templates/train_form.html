@@ -62,7 +62,7 @@
         const to = document.getElementById("to_station").value;
         const date = document.getElementById("date").value;
 
-        const url = `http://localhost:4646/get_train_info?from_station=${from}&to_station=${to}&date=${date}`;
+        const url = `http://141.148.144.105:4646/get_train_info?from_station=${from}&to_station=${to}&date=${date}`;
 
         try {
             const response = await fetch(url);
